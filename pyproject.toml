@@ -1,0 +1,27 @@
+
+[project]
+
+    name = "liquidO-mc"
+
+    description="Run simple Monte Carlo simulations of a LiquidO detector"
+
+    readme = "README.md"
+
+    authors = [
+        { name = "Ewan Miller", email = "e.w.miller@imperial.ac.uk" },
+    ]
+    
+    version = "0.0.0"
+    
+    dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+    dependencies = {file = ["requirements.txt"]}
+
+
+[build-system]
+    requires = ["setuptools"]
+    build-backend = "setuptools.build_meta"
+
+[project.scripts]
+    liquidOmc = "lomc:app.liquidOmc.main"
