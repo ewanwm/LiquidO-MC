@@ -82,7 +82,6 @@ class Propagator:
         self._in_fiber = np.ndarray((self._n_photons,), dtype=np.bool)
         self._in_fiber.fill(False)
 
-        self._distances = np.zeros((n_photons, ), dtype=np.float32)
         self._total_distances = np.zeros((n_photons, ), dtype=np.float32)
 
         self._make_video: bool = False
@@ -200,7 +199,7 @@ class Propagator:
                 "y final": self._current_positions[:,1],
                 "z final": self._current_positions[:,2],
                 
-                "path length": self._distances,
+                "path length": self._total_distances,
 
                 "absorbed in scint": np.logical_and(self._absorbed, np.logical_not(self._in_fiber)),
                 "absorbed in fiber": self._in_fiber
@@ -249,9 +248,10 @@ class Propagator:
 
                 ## update positions
                 new_positions += new_directions
+                distances = np.linalg.norm(new_positions - old_positions, axis=-1)
 
                 if self.do_absorption and material is not None:
-                    absorbed_in_material = self._check_absorption(self._distances[not_absorbed], material=material)
+                    absorbed_in_material = self._check_absorption(distances, material=material)
 
                 if self._unit_cube is not None:
                     absorbed_in_fiber, fiber_positions = self._check_fiber_intersection(old_positions, new_directions)
@@ -259,8 +259,7 @@ class Propagator:
 
                 ## update state
                 self._current_positions[not_absorbed] = new_positions
-                self._distances[not_absorbed] = np.linalg.norm(new_positions - old_positions, axis=-1)
-                self._total_distances[not_absorbed] += self._distances[not_absorbed]
+                self._total_distances[not_absorbed] += distances
 
                 new_absorbed = self._absorbed[not_absorbed]
                 new_absorbed[np.logical_or(absorbed_in_fiber, absorbed_in_material)] = True
