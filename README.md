@@ -11,6 +11,7 @@ It is recommended to use a virtual environment. You can create one using
 ```
 python -m venv <env-name>
 ```
+see more about venv [here](https://docs.python.org/3/library/venv.html)
 
 ## Usage
 After installing, you can run the simulation using the main app `liquidOmc` from the command line.
