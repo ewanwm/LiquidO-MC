@@ -35,21 +35,20 @@ def main():
         default=10000
     )
     parser.add_argument(
-        "--simulate-fibers",
-        type=bool,
-        help="Whether to include the fibers in the simulation",
-        default=True
+        "--disable-fibers",
+        action="store_true",
+        help="Flag to disable fibers in the simulation"
     )
     parser.add_argument(
         "--fiber-radius", 
         type=str, 
-        help="The radius of the wavelength shifting fibers - if --simulate-fibers is False this will have no effect",
+        help="The radius of the wavelength shifting fibers - if --disable-fibers flag is set this will have no effect",
         default="0.5 mm"
     )
     parser.add_argument(
         "--fiber-pitch", 
         type=str, 
-        help="The pitch of the fibers (distance between fibers in each projection) - if --simulate-fibers is False this will have no effect",
+        help="The pitch of the fibers (distance between fibers in each projection) - if --disable-fibers flag is set this will have no effect",
         default="1.0 cm"
     )
     parser.add_argument(
@@ -130,7 +129,7 @@ def main():
       - scattering length:   {scat_len} m 
     
     Geometry: 
-      - simulate fibers: {args.simulate_fibers}
+      - simulate fibers: {not args.disable_fibers}
       - fiber radius:    {fiber_rad} m
       - fiber radius:    {fiber_pitch} m
 
@@ -141,7 +140,7 @@ def main():
     liquidO = Material(scat_len=scat_len, abs_len=abs_len, r_index=1.48)
 
     ## our detector geometry
-    cube = UnitCube(fiber_rad, fiber_pitch, extra_units=1)
+    cube = UnitCube(fiber_rad, fiber_pitch, extra_units=1, enable_fibers=not args.disable_fibers)
 
     ax = plt.subplot(projection="3d")
 
