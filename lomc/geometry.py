@@ -49,13 +49,6 @@ class UnitCube:
         try:
             intersections = fiber.intersect_line(ray)
 
-            if(
-                np.any(intersections[0] > self._fiber_pitch) 
-                or np.any(intersections[1] > self._fiber_pitch) 
-                or np.any(intersections[0] < 0.0) 
-                or np.any(intersections[1] < 0.0)
-            ):
-                raise ValueError()
             return intersections
         
         except:
