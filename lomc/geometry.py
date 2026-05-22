@@ -1,6 +1,9 @@
 import typing
+
 import numpy as np
 from skspatial.objects import Cylinder, Line, LineSegment, Point
+
+from lomc import units
 
 class UnitCube:
     def __init__(self, fiber_radius: float, fiber_pitch, extra_units:int = 0, enable_fibers:bool = True):
@@ -99,6 +102,63 @@ class UnitCube:
                     return True, np.array(intersections[0])
             
         return False, np.zeros((3))
+
+    def py_det_to_fiber_space(self, det_position: np.array, global_coords: bool = False, tolerance:float = 1e-5 * units.mm, null_value: typing.Any = None) -> np.array:
+
+        local_position = np.copy(det_position)
+
+        if global_coords:
+            local_position = np.mod(det_position, self.get_pitch())
+            
+        ret = None
+
+        for fiber in self.fibers:
+
+            x_fiber = fiber.vector[0] != 0.0
+            y_fiber = fiber.vector[1] != 0.0
+            z_fiber = fiber.vector[2] != 0.0
+
+            fiber_pos = np.array(fiber.point)
+            dist = 1e10
+
+            if x_fiber:
+                projected_pos = local_position[[1, 2]]
+                dist = np.linalg.norm(projected_pos - fiber_pos[[1, 2]])
+                
+                if dist < fiber.radius + tolerance:
+                    ret = fiber_pos -local_position + det_position
+                    ret[0] = null_value
+                    break
+
+            elif y_fiber:
+                projected_pos = local_position[[0, 2]]
+                dist = np.linalg.norm(projected_pos - fiber_pos[[0, 2]])
+
+                if dist < fiber.radius + tolerance:
+                    ret = fiber_pos -local_position + det_position
+                    ret[1] = null_value
+                    break
+
+            elif z_fiber:
+                projected_pos = local_position[[0, 1]]
+                dist = np.linalg.norm(projected_pos - fiber_pos[[0, 1]])
+
+                if dist < fiber.radius + tolerance:
+                    ret = fiber_pos -local_position + det_position
+                    ret[2] = null_value
+                    break
+
+            else:
+                print("ERROR: huh?????")
+                raise ValueError("weird fiber")
+
+        if ret is None:
+            raise ValueError("This position is not in a fiber!!!!!")
+        
+        return ret
+            
+
+
 
     def plot_fibers(self, ax):
 

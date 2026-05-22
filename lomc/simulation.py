@@ -189,6 +189,12 @@ class Propagator:
         :type filename: str
         """
 
+        ## get positions of fibers that photons have been absorbed into
+        fiber_positions = np.full(self._current_positions.shape, None)
+
+        if self._unit_cube is not None:
+            fiber_positions[self._in_fiber] = ret = self._unit_cube.det_to_fiber_space(self._current_positions[self._in_fiber], global_coords=True, null_value=None)
+
         df = pd.DataFrame(
             {
                 "x init":  self._init_positions[:,0],
@@ -198,6 +204,10 @@ class Propagator:
                 "x final": self._current_positions[:,0],
                 "y final": self._current_positions[:,1],
                 "z final": self._current_positions[:,2],
+
+                "fiber x": fiber_positions[:, 0],
+                "fiber y": fiber_positions[:, 1],
+                "fiber z": fiber_positions[:, 2],
                 
                 "path length": self._total_distances,
 
