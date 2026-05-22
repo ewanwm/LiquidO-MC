@@ -37,8 +37,8 @@ class UnitCube:
 
         ## vectorized numpy functions
         self.check_ray_intersections = np.vectorize(signature="(d), (d)->()")(self.py_check_ray_intersections)
-        self.check_segment_intersections = np.vectorize(signature="(d), (d)->(), (3)")(self.py_check_segment_intersections)
-        self.check_segment_intersections.__doc__ = "blaaaa"
+        self.check_segment_intersections = np.vectorize(signature="(d), (d)->(), (3)", excluded=["global_coords"])(self.py_check_segment_intersections)
+        self.det_to_fiber_space = np.vectorize(signature="(3)->(3)", excluded=["global_coords", "tolerance", "null_value"], otypes=[float])(self.py_det_to_fiber_space)
 
     def get_pitch(self):
         return self._fiber_pitch
@@ -72,14 +72,21 @@ class UnitCube:
             
         return False
     
-    def py_check_segment_intersections(self, x_start, x_end):
+    def py_check_segment_intersections(self, x_start: np.array, x_end: np.array, global_coords: bool=False) -> typing.Tuple[bool, np.array]:
         """Check for intersections between line segments and any fiber
         
         returns True, and the array of intersection points if there are intersections, or (False, None) if there are no intersections
         """
 
-        segment = LineSegment(x_start, x_end)
-        ray = Line(x_start, x_end - x_start)
+        local_x_start = np.copy(x_start)
+        local_x_end = np.copy(x_end)
+
+        if global_coords:
+            local_x_start = np.mod(x_start, self.get_pitch())
+            local_x_end = np.mod(x_end, self.get_pitch())
+        
+        segment = LineSegment(local_x_start, local_x_end)
+        ray = Line(local_x_start, local_x_end - local_x_start)
 
         for fiber in self.fibers:
             intersections: typing.List[Point] = self._check_ray_fiber_intersection(ray, fiber)
@@ -87,19 +94,19 @@ class UnitCube:
                 
                 if (segment.contains_point(intersections[0]) and segment.contains_point(intersections[1])):
                     
-                    dist_to_0 = np.linalg.norm(np.array(intersections[0]) - x_start)
-                    dist_to_1 = np.linalg.norm(np.array(intersections[1]) - x_start)
+                    dist_to_0 = np.linalg.norm(np.array(intersections[0]) - local_x_start)
+                    dist_to_1 = np.linalg.norm(np.array(intersections[1]) - local_x_start)
 
                     closest_point = np.argmin([dist_to_0, dist_to_1])
-                    return True, np.array(intersections[closest_point])
+                    return True, np.array(intersections[closest_point]) - local_x_start + x_start
 
                 elif (segment.contains_point(intersections[1])):
 
-                    return True, np.array(intersections[1])
+                    return True, np.array(intersections[1]) - local_x_start + x_start
                 
                 elif (segment.contains_point(intersections[0])):
 
-                    return True, np.array(intersections[0])
+                    return True, np.array(intersections[0]) - local_x_start + x_start
             
         return False, np.zeros((3))
 
@@ -156,9 +163,6 @@ class UnitCube:
             raise ValueError("This position is not in a fiber!!!!!")
         
         return ret
-            
-
-
 
     def plot_fibers(self, ax):
 

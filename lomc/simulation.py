@@ -158,24 +158,25 @@ class Propagator:
 
         return rand < abs_prob
     
-    def _check_fiber_intersection(self, positions: np.array, directions: np.array) -> typing.Tuple[np.array, np.array]:
+    def _check_fiber_intersection(self, positions: np.array, directions: np.array, to_fiber_space: bool = False) -> typing.Tuple[np.array, np.array]:
         ## check if photons have been absorbed
 
-        unit_cube_positions = np.mod(positions, self._unit_cube.get_pitch())
+        assert self._unit_cube is not None, "Must define geometry to check for fiber interesections!!!"
 
         intersects, intersections = self._unit_cube.check_segment_intersections(
-            unit_cube_positions,
-            unit_cube_positions + directions
+            positions,
+            positions + directions,
+            global_coords=True
         )
 
-        new_positions = None
+        ret = None
+        if to_fiber_space:
+            ret = self._unit_cube.det_to_fiber_space(intersections[intersects], global_coords=True, null_value=0.0)
 
-        if intersects.sum() > 0:
+        else:
+            ret = intersections[intersects]
 
-            new_positions = positions[intersects]
-            new_positions[:] += intersections[intersects] - unit_cube_positions[intersects]
-    
-        return intersects, new_positions
+        return intersects, ret
     
     def all_absorbed(self) -> bool:
         """Check if all photons absorbed"""
