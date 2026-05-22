@@ -105,6 +105,10 @@ def main():
     fiber_rad   = units.from_string(args.fiber_radius)
     fiber_pitch = units.from_string(args.fiber_pitch)
 
+    video_filename = None
+    if args.make_video:
+        video_filename = args.video_filename
+
     ## ensure output file has .csv extension
     output_file = args.output_file
     if output_file.split(".")[-1] == "csv":
@@ -119,7 +123,7 @@ def main():
     - n photons:      {args.n_photons}
     - output file:    {output_file}
     - make video:     {args.make_video}
-      -> video file: {args.video_filename}
+      -> video file: {video_filename}
     - max iterations: {args.max_iterations}
 
     Scintillator properties:
@@ -155,7 +159,7 @@ def main():
         do_absorption=not args.disable_absorption, 
         do_scattering=not args.disable_absorption, 
         init_positions=np.zeros((args.n_photons, 3)), 
-        video_filename=args.video_filename,
+        video_filename=video_filename,
         max_iterations=args.max_iterations
     )
 
