@@ -29,6 +29,20 @@ def main():
         default="photons.csv"
     )
     parser.add_argument(
+        "--position", "-p",
+        type=str,
+        nargs=3,
+        help="Central positon of box to generate photons in",
+        default=["0.0 mm", "0.0 mm", "0.0 mm"]
+    )
+    parser.add_argument(
+        "--width", "-w",
+        type=str,
+        nargs=3,
+        help="Width of box to generate photons in",
+        default=["1.0 cm", "1.0 cm", "1.0 cm"]
+    )
+    parser.add_argument(
         "--max-iterations",
         type=int,
         help="The maximum number of iterations the simulation is allowed to run for",
@@ -104,6 +118,8 @@ def main():
     abs_len     = units.from_string(args.abs_len)
     fiber_rad   = units.from_string(args.fiber_radius)
     fiber_pitch = units.from_string(args.fiber_pitch)
+    box_pos     = np.array([units.from_string(p) for p in args.position])
+    box_width   = np.array([units.from_string(w) for w in args.width])
 
     video_filename = None
     if args.make_video:
@@ -125,6 +141,8 @@ def main():
     - make video:     {args.make_video}
       -> video file: {video_filename}
     - max iterations: {args.max_iterations}
+    - box position:   {box_pos} m
+    - box width:      {box_width} m
 
     Scintillator properties:
       - simulate absorption: {not args.disable_absorption}
@@ -158,7 +176,7 @@ def main():
         cube=cube, 
         do_absorption=not args.disable_absorption, 
         do_scattering=not args.disable_absorption, 
-        init_positions=np.zeros((args.n_photons, 3)), 
+        init_positions=np.random.uniform(box_pos - box_width / 2.0, box_pos + box_width / 2.0, size=(args.n_photons, 3)), 
         video_filename=video_filename,
         max_iterations=args.max_iterations
     )
