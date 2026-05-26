@@ -108,6 +108,15 @@ class UnitCube:
         except:
             return None
     
+    def check_possible_ray_intersections(self, positions: np.array, directions: np.array, projection: typing.List, fiber_position: np.array) -> np.array:
+
+        projected_positions = positions[:, projection]
+        projected_directions = directions[:, projection]
+
+        distances = np.linalg.norm(np.cross(projected_directions, projected_positions-fiber_position).reshape(-1,1),axis=1)/np.linalg.norm((projected_directions).reshape(-1,2), axis=1)
+
+        return np.less(distances, self._fiber_radius)
+    
     def py_check_segment_fiber_intersections(self, x_start: np.array, x_end: np.array, fiber: Cylinder, global_coords: bool=False) -> typing.Tuple[bool, np.array]:
         """Check for intersections between line segments and any fiber
         
