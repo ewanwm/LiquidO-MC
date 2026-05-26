@@ -21,11 +21,11 @@ class UnitCube:
             for u in range( -extra_units, extra_units + 1 ):
                 for v in range(-extra_units, extra_units + 1):
 
-                    x_fiber_pos = (np.array([-1.0    , 0.25 + u, 0.25 + v]) - 0.5) * fiber_pitch
-                    y_fiber_pos = (np.array([0.25 + u, -1.0    , 0.75 + v]) - 0.5) * fiber_pitch
-                    z_fiber_pos = (np.array([0.75 + u, 0.75 + v, -1.0    ]) - 0.5) * fiber_pitch
-                    
                     cylinder_len = (2*extra_units + 1) * fiber_pitch
+
+                    x_fiber_pos = np.array([0.0    , 0.25 + u, 0.25 + v]) * fiber_pitch - np.array([-0.5 * cylinder_len, 0.0, 0.0])
+                    y_fiber_pos = np.array([0.25 + u, 0.0    , 0.75 + v]) * fiber_pitch - np.array([0.0, -0.5 * cylinder_len, 0.0])
+                    z_fiber_pos = np.array([0.75 + u, 0.75 + v, 0.0    ]) * fiber_pitch - np.array([0.0, 0.0, -0.5 * cylinder_len])
 
                     x_fiber = Cylinder(x_fiber_pos, [cylinder_len,0           ,0           ], fiber_radius)
                     y_fiber = Cylinder(y_fiber_pos, [0           ,cylinder_len,0           ], fiber_radius)
