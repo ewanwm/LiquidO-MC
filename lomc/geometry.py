@@ -143,27 +143,21 @@ class UnitCube:
             local_x_start = np.mod(x_start, self.get_pitch())
             local_x_end = np.mod(x_end, self.get_pitch())
         
-        segment = LineSegment(local_x_start, local_x_end)
         ray = Line(local_x_start, local_x_end - local_x_start)
 
         intersections: typing.List[Point] = self._check_ray_fiber_intersection(ray, fiber)
         if intersections is not None:
-            
-            if (segment.contains_point(intersections[0]) and segment.contains_point(intersections[1])):
-                
-                dist_to_0 = np.linalg.norm(np.array(intersections[0]) - local_x_start)
-                dist_to_1 = np.linalg.norm(np.array(intersections[1]) - local_x_start)
 
-                closest_point = np.argmin([dist_to_0, dist_to_1])
-                return True, np.array(intersections[closest_point]) - local_x_start + x_start
+            step_len = np.linalg.norm(local_x_end - local_x_start)
 
-            elif (segment.contains_point(intersections[1])):
+            dist_to_0 = np.linalg.norm(np.array(intersections[0]) - local_x_start)
+            dist_to_1 = np.linalg.norm(np.array(intersections[1]) - local_x_start)
 
-                return True, np.array(intersections[1]) - local_x_start + x_start
-            
-            elif (segment.contains_point(intersections[0])):
+            closest_point = np.array(intersections[np.argmin([dist_to_0, dist_to_1])])
 
-                return True, np.array(intersections[0]) - local_x_start + x_start
+            if np.linalg.norm(closest_point - local_x_start) < step_len:
+
+                return True, closest_point - local_x_start + x_start
             
         return False, np.zeros((3))
 
