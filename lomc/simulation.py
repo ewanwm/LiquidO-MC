@@ -165,7 +165,7 @@ class Propagator:
 
         intersects, intersections = self._unit_cube.check_segment_intersections(
             positions,
-            positions + directions,
+            directions,
             global_coords=True
         )
 
