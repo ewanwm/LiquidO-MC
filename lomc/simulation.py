@@ -239,33 +239,26 @@ class Propagator:
                 ## indices of photons that aren't absorbed yet
                 not_absorbed = np.where(np.logical_not(self._absorbed))[0]
 
-                self._last_positions = np.copy(self._current_positions)
-                self._last_directions = np.copy(self._current_directions)
+                self._last_positions[:] = self._current_positions
+                self._last_directions[:] = self._current_directions
 
-                ## positions and directions for only non-absorbed photons
-                old_positions = self._last_positions[not_absorbed]
-                old_directions = self._last_directions[not_absorbed]
-
-                new_positions = np.copy(old_positions)
-                new_directions = None
+                new_positions = self._last_positions[not_absorbed]
                 absorbed_in_material = np.full((n_alive_photons), False)
                 absorbed_in_fiber = np.full((n_alive_photons), False)
 
+                ## if we have scattering enabled, update the directions
                 if self.do_scattering and material is not None:
-                    new_directions = isotropic_exponential_vectors((n_alive_photons,), material.scat_len)
-
-                else:
-                    new_directions = np.copy(old_directions)
+                    self._current_directions[not_absorbed] = isotropic_exponential_vectors((n_alive_photons,), material.scat_len)
 
                 ## update positions
-                new_positions += new_directions
-                distances = np.linalg.norm(new_positions - old_positions, axis=-1)
+                new_positions += self._current_directions[not_absorbed]
+                distances = np.linalg.norm(self._current_directions[not_absorbed], axis=-1)
 
                 if self.do_absorption and material is not None:
                     absorbed_in_material = self._check_absorption(distances, material=material)
 
                 if self._unit_cube is not None:
-                    absorbed_in_fiber, fiber_positions = self._check_fiber_intersection(old_positions, new_directions)
+                    absorbed_in_fiber, fiber_positions = self._check_fiber_intersection(self._last_positions[not_absorbed], self._current_directions[not_absorbed])
                     new_positions[absorbed_in_fiber] = fiber_positions
 
                 ## update state
