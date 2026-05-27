@@ -113,7 +113,20 @@ class UnitCube:
         projected_positions = positions[:, projection]
         projected_directions = directions[:, projection]
 
-        distances = np.linalg.norm(np.cross(projected_directions, projected_positions-fiber_position).reshape(-1,1),axis=1)/np.linalg.norm((projected_directions).reshape(-1,2), axis=1)
+        ## project the fiber center onto the direction vector
+        ab = np.sum(projected_directions * (fiber_position - projected_positions), axis = -1, keepdims=True)
+        bb = np.sum(projected_directions * projected_directions, axis = -1, keepdims=True)
+        
+        projected_fiber_center = ab * projected_directions / bb
+        
+        ## check that this projected position is within the step
+        possible = np.less(np.linalg.norm(projected_fiber_center, axis=-1), np.linalg.norm(projected_directions, axis=-1) + self._fiber_radius)
+
+        ## calculate perpendicular distance between direction vector and fiber center
+        distances = np.full((projected_positions.shape[0],), np.inf)
+
+        if np.any(possible):
+            distances[possible] = np.linalg.norm(np.cross(projected_directions[possible], projected_positions[possible]-fiber_position).reshape(-1,1),axis=1)/np.linalg.norm((projected_directions[possible]).reshape(-1,2), axis=1)
 
         return np.less(distances, self._fiber_radius)
     
