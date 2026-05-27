@@ -66,7 +66,7 @@ class Propagator:
             self._init_directions = init_directions
         else:
             if self.do_scattering:
-                self._init_directions = np.zeros((self._n_photons,))
+                self._init_directions = np.zeros((self._n_photons, 3))
             else:
                 self._init_directions:np.array = isotropic_unit_vectors(size=(self._n_photons,))
 
