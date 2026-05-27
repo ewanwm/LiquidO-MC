@@ -17,9 +17,9 @@ class UnitCube:
         self.y_fibers = []
         self.z_fibers = []
 
-        self._x_fiber_positions = None
-        self._y_fiber_positions = None
-        self._z_fiber_positions = None
+        self._x_fiber_positions = np.array([])
+        self._y_fiber_positions = np.array([])
+        self._z_fiber_positions = np.array([])
 
         if self._enable_fibers:
 
@@ -52,7 +52,7 @@ class UnitCube:
             self._y_fiber_positions = np.array(y_fiber_positions)
             self._z_fiber_positions = np.array(z_fiber_positions)
 
-            self.fibers = [*self.x_fibers, *self.y_fibers, *self.z_fibers]
+        self.fibers = [*self.x_fibers, *self.y_fibers, *self.z_fibers]
 
         ## vectorized numpy functions
         self.check_segment_fiber_intersections = np.vectorize(signature="(d), (d)->(), (3)", excluded=["fiber", "global_coords"])(self.py_check_segment_fiber_intersections)
