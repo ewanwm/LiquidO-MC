@@ -175,7 +175,7 @@ def main():
         csv_filename=output_file,
         cube=cube, 
         do_absorption=not args.disable_absorption, 
-        do_scattering=not args.disable_absorption, 
+        do_scattering=not args.disable_scattering, 
         init_positions=np.random.uniform(box_pos - box_width / 2.0, box_pos + box_width / 2.0, size=(args.n_photons, 3)), 
         video_filename=video_filename,
         max_iterations=args.max_iterations
