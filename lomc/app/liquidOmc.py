@@ -75,8 +75,7 @@ def main():
           
           -> so if you want to turn off scatttering you should use this rather than just setting 
              scattering length to some large value (which will invalidate the simulation!)
-        ''',
-        default=True
+        '''
     )
     parser.add_argument(
         "--scat-len", 
